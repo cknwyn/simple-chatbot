@@ -1,7 +1,9 @@
 import pywhatkit as pwk
-import wikipedia
 import wikipedia as wiki
 import pyjokes as pj
+import python_weather
+import os
+import asyncio
 import pyttsx3
 import requests
 from datetime import datetime
@@ -15,19 +17,21 @@ from datetime import datetime
 #    engine.runAndWait()
 
 
-#def get_weather(city):
-#   api_key = "YOUR_API_KEY"
-#   url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
-#   response = requests.get(url)
-#   data = response.json()
-#   if data["cod"] == "404":
-#       speak("City not found.")
-#       return "City not found."
-#   else:
-#       main_data = data["main"]
-#       temperature = main_data["temp"] - 273.15  # Convert from Kelvin to Celsius
-#       speak(f"The temperature in {city} is {temperature:.2f}°C")
-#       return f"The temperature in {city} is {temperature:.2f}°C" '''
+async def get_weather(city) -> None:
+    async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
+        # Fetch a weather forecast from a city.
+        weather = client.get(city)
+
+        # Fetch the temperature for today.
+        print(weather.temperature)
+
+        # Fetch weather forecast for upcoming days.
+        for daily in weather:
+            print(daily)
+
+            # Each daily forecast has their own hourly forecasts.
+        for hourly in daily:
+            print(f' --> {hourly!r}')
 
 
 def main():
@@ -49,6 +53,10 @@ def main():
            print(f"The current time is {time_str}")
            #speak(f"The current time is {time_str}")
 
+        elif "weather" in user_input:
+           city = user_input.split("weather in")[-1].strip()
+           print(get_weather(city))
+
         elif any(keyword in user_input for keyword in ["what", "who", "when"]):
             query_location = 0
             match (user_input for keyword in ["what", "who", "when"]):
@@ -58,9 +66,8 @@ def main():
                     query_location = user_input.find("what")
                 case ("when"):
                     query_location = user_input.find("when")
-            check_page = wikipedia.search(user_input[query_location + 6:])
+            check_page = wiki.search(user_input[query_location + 6:])
 
-            #summary = wiki.summary(user_input[query_location + 7:], sentences=5, auto_suggest=False)
             print("What are you looking for?")
             for title in check_page:
                 print("\t",title)
@@ -68,10 +75,6 @@ def main():
             user_input = input()
             if user_input in check_page:
                 return print(wiki.summary(user_input),)
-
-        #elif "weather" in user_input:
-        #   city = user_input.split("weather in")[-1].strip()
-        #   print(get_weather(city))
 
         elif "joke" in user_input:
             joke = pj.get_joke()
