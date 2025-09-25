@@ -23,14 +23,19 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-def get_weather(city):
+def get_weather(city=None):
+    if not city or city.strip() == "":
+        query = "auto:ip" # use ip for location detection
+    else:
+        query = city
+
     params = {
         "key": API_KEY,
-        "q": city,
+        "q": query,
         "aqi": "no"
     }
     response = requests.get(BASE_URL, params=params)
-    data = response.json
+    data = response.json()
 
     if "error" in data:
         return "I could not find the weather for that location."
@@ -65,10 +70,11 @@ def run_alexa(user_input):
             speak(f"The current time is {time_str}")
 
         elif "weather" in user_input:
-            city = user_input.replace("weather", "").strip()
+            city = user_input.replace("weather", "").replace("alexa", "").strip()
             if city == "":
                 city = input("Which city? ")
             print(get_weather(city))
+            speak(get_weather(city))
 
         elif any(keyword in user_input for keyword in ["what", "who", "when"]):
             query_location = 0
