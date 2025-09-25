@@ -23,8 +23,8 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-def get_weather(city=None):
-    if not city or city.strip() == "":
+def get_weather(city):
+    if "today" in city:
         query = "auto:ip" # use ip for location detection
     else:
         query = city
@@ -70,9 +70,9 @@ def run_alexa(user_input):
             speak(f"The current time is {time_str}")
 
         elif "weather" in user_input:
-            city = user_input.replace("weather", "").replace("alexa", "").strip()
-            if city == "":
-                city = input("Which city? ")
+            command = user_input.replace("alexa", "").strip()
+            city = command.replace("weather", "").strip()
+            print(city)
             print(get_weather(city))
             speak(get_weather(city))
 
@@ -93,7 +93,8 @@ def run_alexa(user_input):
 
             user_input = input()
             if user_input in check_page:
-                print(wiki.summary(user_input),)
+                print(wiki.summary(user_input, sentences=5),)
+                speak(wiki.summary(user_input, sentences=5),)
 
         elif "joke" in user_input:
             joke = pj.get_joke()
