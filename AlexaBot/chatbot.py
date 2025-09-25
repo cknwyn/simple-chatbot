@@ -23,9 +23,14 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
+def get_location_from_ip():
+    response = requests.get("https://ipinfo.io/json")
+    data = response.json()
+    return data.get("city")
+
 def get_weather(city):
     if "today" in city:
-        query = "auto:ip" # use ip for location detection
+        query = get_location_from_ip() # use ip for location detection
     else:
         query = city
 
@@ -60,7 +65,7 @@ def run_alexa(user_input):
         if "play" in user_input:
             song = user_input.replace('play','')
             print('Playing '+ song)
-            speak('Playing '+ song)
+            speak('Now playing '+ song)
             pwk.playonyt(user_input)
 
         elif "time" in user_input:
@@ -72,7 +77,6 @@ def run_alexa(user_input):
         elif "weather" in user_input:
             command = user_input.replace("alexa", "").strip()
             city = command.replace("weather", "").strip()
-            print(city)
             print(get_weather(city))
             speak(get_weather(city))
 
